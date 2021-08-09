@@ -4,14 +4,13 @@ import User from "../models/user.model";
 import bcrypt from "bcrypt"
 import { Document } from 'mongoose';
 import * as dotenv from 'dotenv';
-
+import jwt from "jsonwebtoken"
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET
-import jwt from "jsonwebtoken"
 
 export const renderHome = (req: Request, res: Response): void => {
     if (req.session.user) {
-        res.send("Wellcome to my app")
+        res.render("home-dashboard", {username: req.session.user.username})
     } else {
         res.render("home-guest")
     }
@@ -51,11 +50,22 @@ export const login = async (req: Request, res: Response): Promise<void> => {
                     {_id: user._id },
                     JWT_SECRET, {expiresIn: "1h"}
                 );
-                req.session.user = {favColor: "blue", id: user._id}
-                res.status(200)
-                res.redirect("/")
+                req.session.user = {favColor: "blue", id: user._id, username: user.username}
+                req.session.save(() => {
+                    res.redirect("/")
+                })
             }
         }
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+export const logout = (req:Request, res:Response) => {
+    try {
+        req.session.destroy((err) => {
+            res.redirect("/")
+        })
     } catch (e) {
         console.log(e)
     }
