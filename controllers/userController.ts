@@ -4,15 +4,15 @@ import User from "../models/user.model";
 import bcrypt from "bcrypt"
 import { Document } from 'mongoose';
 import * as dotenv from 'dotenv';
-import jwt from "jsonwebtoken"
+// import jwt from "jsonwebtoken"
 dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET
+// const JWT_SECRET = process.env.JWT_SECRET
 
 export const renderHome = (req: Request, res: Response): void => {
     if (req.session.user) {
         res.render("home-dashboard", {username: req.session.user.username})
     } else {
-        res.render("home-guest")
+        res.render("home-guest", { error: req.flash("error") })
     }
 }
 
@@ -34,29 +34,33 @@ export const register = async (req: Request, res: Response): Promise<object | Er
 
 export const login = async (req: Request, res: Response): Promise<void> => {
     try {
-        const password = req.body.password
+        const password = req.body.password;
         const user: IUser & Document | null = await User.findOne({email: req.body.email});
         if (!user) {
-            console.log("User is unauthorized!")
-            res.status(400).send("User is unauthorized!");
+            req.flash("error", "User is unauthorized!");
+            res.redirect("/");
         }
         if (user) {
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                res.status(400).json({message: "Incorrect password"});
+                req.flash("error", "Incorrect password");
+                req.session.save(() => {
+                    res.redirect("/");
+                })
             }
-            if (typeof JWT_SECRET === 'string') {
-                const AccessToken = jwt.sign(
-                    {_id: user._id },
-                    JWT_SECRET, {expiresIn: "1h"}
-                );
+            // if (typeof JWT_SECRET === 'string') {
+            //     const AccessToken = jwt.sign(
+            //         {_id: user._id },
+            //         JWT_SECRET, {expiresIn: "1h"}
+            //     );
                 req.session.user = {favColor: "blue", id: user._id, username: user.username}
                 req.session.save(() => {
                     res.redirect("/")
                 })
-            }
+            // }
         }
     } catch (e) {
+        req.flash("error", e)
         console.log(e)
     }
 }

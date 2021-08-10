@@ -3,16 +3,23 @@ import {NextFunction, Request, Response} from "express";
 const registerMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const {username, email, password} = req.body;
     if (!username || !email || !password) {
-        return res.status(400).json({error: "Fill in the input fields!"})
+        req.flash("error", "Fill in the input fields!")
+        res.redirect("/")
+        return
     }
     const isEmail:RegExp = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
     if (!isEmail.test(email)) {
-        return res.status(401).json({error: "Invalid email!"})
+        req.flash("error", "Invalid email!")
+        res.redirect("/")
+        return
     }
     if (password.length > 16) {
-        return res.status(401).json({error: "Maximum password length 16 characters"})
+        req.flash("error", "Maximum password length 16 characters!")
+        res.redirect("/")
     } else if (password.length < 4) {
-        return res.status(401).json({error: "Minimum password length 4 characters"})
+        req.flash("error", "Minimum password length 4 characters!")
+        res.redirect("/")
+        return
     }
     next();
 }

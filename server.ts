@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import router from "./router";
 import {connectFunction} from "./models/db";
 import session from "express-session";
+import flash from "connect-flash"
 dotenv.config()
 const MongoStore = require("connect-mongo")
 const app: Express = express()
@@ -20,6 +21,7 @@ app.use(session({
         cookie: {maxAge: 1000 * 60 * 60 * 24, httpOnly: true}
     })
 }));
+app.use(flash())
 app.use(express.json())
 app.use(router)
 app.use(cors())

@@ -12,11 +12,13 @@
   "license": "ISC",
   "dependencies": {
     "@types/bcrypt": "^5.0.0",
+    "@types/connect-flash": "^0.0.37",
     "@types/cors": "^2.8.12",
     "@types/ejs": "^3.0.7",
     "@types/express-session": "^1.17.4",
     "@types/jsonwebtoken": "^8.5.4",
     "bcrypt": "^5.0.1",
+    "connect-flash": "^0.1.1",
     "connect-mongo": "^4.4.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
